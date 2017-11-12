@@ -13,10 +13,6 @@ steps:
         PROJECT=$$(gcloud config get-value core/project)
         ZONE=$$(gcloud config get-value compute/zone)
       
-        cat <<EOF
-        Running: gcloud container clusters get-credentials "$${CLUSTER}" --project "$${PROJECT}" --zone "$${ZONE}"
-        EOF
-
         gcloud container clusters get-credentials "$${CLUSTER}" \
           --project "$${PROJECT}" \
           --zone "$${ZONE}"
