@@ -1,6 +1,6 @@
 steps:
   # Generate a kubeconfig file for the given GKE cluster.
-  - name: 'gcr.io/cloud-builders/gcloud'
+  - name: 'gcr.io/cloud-builders/kubectl'
     env:
       - 'CLOUDSDK_COMPUTE_ZONE=${_CLOUDSDK_COMPUTE_ZONE}'
       - 'CLOUDSDK_CONTAINER_CLUSTER=${_CLOUDSDK_CONTAINER_CLUSTER}'
@@ -20,7 +20,7 @@ steps:
       - name: 'kube'
         path: /kube
 
-  # Ensure the namespace exists.
+  # Apply the Kubernetes configuration files.
   - name: 'gcr.io/cloud-builders/gcloud'
     env:
       - 'KUBECONFIG=/kube/config'
@@ -28,26 +28,7 @@ steps:
     args:
       - '-c'
       - |
-        cat <<EOF | kubectl apply --namespace ${_NAMESPACE} -f -
-        kind: Namespace
-        apiVersion: v1
-        metadata:
-          name: ${_NAMESPACE}
-        EOF
-    volumes:
-      - name: 'kube'
-        path: /kube
-
-  # Update the pipeline-application deployment.
-  - name: 'gcr.io/cloud-builders/gcloud'
-    env:
-      - 'KUBECONFIG=/kube/config'
-    entrypoint: 'sh'
-    args:
-      - '-c'
-      - |
-        kubectl apply --namespace ${_NAMESPACE} \
-          -f deployments/pipeline.yaml
+        kubectl apply --recursive -f kubernetes
     volumes:
       - name: 'kube'
         path: /kube
